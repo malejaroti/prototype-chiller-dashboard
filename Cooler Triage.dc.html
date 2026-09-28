@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>body{margin:0;background:rgb(244,246,250);font-family:Outfit,system-ui,sans-serif;color:rgb(30,41,59)}*{box-sizing:border-box}a{color:rgb(37,99,235);text-decoration:none}a:hover{color:rgb(29,78,216);text-decoration:underline}input::placeholder{color:rgba(30,41,59,.5)}button{font-family:inherit}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;padding-bottom:30px">
+  <div style="height:54px;background:#fff;border:1px solid rgb(226,232,240);display:flex;padding:0 24px;justify-content:space-between;align-items:center">
+    <div onClick="{{ goSearch }}" style="display:flex;gap:10px;align-items:center;cursor:pointer">
+      <div style="width:30px;height:30px;border-radius:7px;background:rgb(37,99,235);display:flex;justify-content:center;align-items:center;color:#fff;font-size:16px"><i class="ph ph-snowflake"></i></div>
+      <span style="font-weight:700;font-size:14.72px;line-height:22.08px;white-space:nowrap">DispenserLink - Marmon</span>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="height:26px;border-radius:6px;background:rgb(238,246,255);padding:4px 10px;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(37,99,235)">Jane doe</div>
+      <button style="height:33px;border-radius:7px;border:none;box-shadow:inset 0 0 0 1px rgb(220,38,38);background:#fff;display:flex;gap:6px;padding:6px 14px;align-items:center;font-weight:600;font-size:12.48px;color:rgb(220,38,38);cursor:pointer" style-hover="background:rgb(254,242,242)">Logout <i class="ph ph-sign-out" style="font-size:16px"></i></button>
+    </div>
+  </div>
+
+  <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:42px;background:#fff;border:1px solid rgb(226,232,240);border-top:none;display:flex;padding:0 24px;justify-content:space-between;align-items:stretch;gap:16px">
+      <label style="flex:1;min-width:0;max-width:1019px;border:1px solid rgb(37,99,235);border-bottom:2px solid rgb(37,99,235);display:flex;gap:8px;padding:0 16px;align-items:center;cursor:text">
+        <i class="ph ph-magnifying-glass" style="font-size:14px;color:rgb(37,99,235)"></i>
+        <input ref="{{ inputRef }}" value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onKey }}" placeholder="Enter unit ID or serial number" style="flex:1;min-width:0;border:none;outline:none;background:transparent;font-family:Outfit,sans-serif;font-size:14.4px;color:rgb(30,41,59);padding:10px 0"></input>
+        <sc-if value="{{ hasQ }}"><button onClick="{{ clearQ }}" style="border:none;background:none;color:rgb(100,116,139);cursor:pointer;font-size:14px;padding:4px;display:flex"><i class="ph ph-x"></i></button></sc-if>
+      </label>
+      <div style="display:flex;align-items:center">
+        <button onClick="{{ toggleSort }}" style="border:none;background:none;display:flex;gap:6px;padding:10px 16px;align-items:center;font-weight:500;font-size:12.8px;color:rgb(100,116,139);cursor:pointer;white-space:nowrap" style-hover="color:rgb(30,41,59)">{{ sortLabel }} <i class="ph ph-caret-up-down" style="font-size:16px"></i></button>
+        <button onClick="{{ cycleFilter }}" style="border:none;background:none;display:flex;gap:6px;padding:10px 16px;align-items:center;font-weight:500;font-size:12.8px;color:{{ filterColor }};cursor:pointer;white-space:nowrap" style-hover="color:rgb(30,41,59)">{{ filterLabel }} <i class="ph ph-funnel" style="font-size:16px"></i></button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div style="width:100%;max-width:1200px;padding:20px 24px">
+        <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+          <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px">
+            <span style="font-weight:600;font-size:11.52px;line-height:17.28px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">{{ listTitle }}</span>
+          </div>
+          <div style="padding:4px 14px 10px">
+            <sc-for list="{{ results }}" as="r" hint-placeholder-count="8">
+              <div onClick="{{ r.open }}" style="border-bottom:1px solid rgb(226,232,240);display:flex;gap:12px;padding:8px 6px;align-items:center;cursor:pointer;font-size:13.12px;line-height:19.68px" style-hover="background:rgb(238,246,255)">
+                <div style="width:8px;height:8px;border-radius:4px;background:{{ r.dot }};flex-shrink:0"></div>
+                <span style="width:80px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:12.48px">{{ r.id }}</span>
+                <span style="width:80px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ r.sn }}</span>
+                <span style="flex:1;min-width:0;color:rgb(100,116,139);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.loc }}</span>
+                <span style="width:140px;flex-shrink:0;text-align:right;font-weight:500">{{ r.client }}</span>
+                <span style="width:64px;flex-shrink:0;text-align:right;font-weight:700;font-size:11.2px;color:{{ r.txt }}">{{ r.status }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noResults }}">
+              <div style="padding:28px 6px;display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+                <span style="font-weight:600;font-size:14.4px">No unit matches “{{ q }}”.</span>
+                <span style="font-size:13.12px;color:rgb(100,116,139)">Ask the caller to read the ID again. It is on the sticker inside the front panel, for example CU-3304 or SN-01234.</span>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}">
+    <div style="background:#fff;border:1px solid rgb(226,232,240);border-top:none;padding:14px 24px 16px;display:flex;flex-direction:column;gap:10px">
+      <a href="#" onClick="{{ goSearchLink }}" style="font-weight:500;font-size:12.8px;display:flex;align-items:center;gap:6px;padding-left:20px"><i class="ph ph-arrow-left"></i>Back to search</a>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:14px;flex:1 1 300px">
+          <div style="width:44px;height:44px;border-radius:8px;border:1.5px solid {{ stDot }};background:{{ stBg }};display:flex;align-items:center;justify-content:center;color:{{ stDot }};font-size:22px;flex-shrink:0"><i class="ph ph-snowflake"></i></div>
+          <span style="font-weight:700;font-size:16px">{{ uId }}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ uSn }}</span>
+          <span style="background:{{ stBg }};color:{{ stTxt }};font-weight:700;font-size:11.2px;padding:3px 8px;border-radius:5px">{{ uStatus }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;flex:1 1 220px">
+          <span style="font-size:10.88px;color:rgb(100,116,139);text-transform:uppercase;letter-spacing:.6px">Location</span>
+          <span style="font-size:13.12px;color:rgb(30,41,59)">{{ uLoc }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;flex:0 1 140px">
+          <span style="font-size:10.88px;color:rgb(100,116,139);text-transform:uppercase;letter-spacing:.6px">Owner</span>
+          <span style="font-weight:500;font-size:13.12px">{{ uClient }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+          <span style="display:flex;align-items:center;gap:5px;font-size:9.36px;font-weight:600;color:rgb(22,163,74)"><span style="width:6px;height:6px;border-radius:3px;background:rgb(22,163,74)"></span>Connected · {{ syncAgo }}</span>
+          <button onClick="{{ refresh }}" style="border:none;border-radius:5px;background:rgb(37,99,235);color:#fff;font-weight:600;font-size:11.52px;padding:6px 18px;cursor:pointer;display:flex;gap:6px;align-items:center" style-hover="background:rgb(29,78,216)"><i class="ph ph-arrows-clockwise"></i>{{ refreshLabel }}</button>
+        </div>
+        <button onClick="{{ goDiag }}" style="border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding:4px 0;text-align:right">
+          <span style="font-size:11.2px;letter-spacing:.672px;color:rgb(100,116,139);text-transform:uppercase">Dispatch recommendation</span>
+          <span style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14.72px;color:{{ recColor }}"><i class="ph-fill {{ recIcon }}" style="font-size:17px"></i>{{ recLabel }}<i class="ph ph-caret-right" style="font-size:13px"></i></span>
+        </button>
+      </div>
+    </div>
+    <div style="background:rgb(244,246,250);border-bottom:1px solid rgb(226,232,240);padding:0 24px;display:flex;gap:2px;overflow-x:auto">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.go }}" style="border:1px solid {{ t.bd }};border-bottom:2px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.color }};font-weight:500;font-size:12.8px;padding:10px 16px;cursor:pointer;white-space:nowrap;display:flex;gap:6px;align-items:center">{{ t.label }}<sc-if value="{{ t.hasCount }}"><span style="background:{{ t.countBg }};color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px">{{ t.count }}</span></sc-if></button>
+      </sc-for>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div style="width:100%;max-width:1200px;padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+
+        <sc-if value="{{ tabOverview }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+            <sc-for list="{{ statsA }}" as="s" hint-placeholder-count="5">
+              <div style="border-radius:10px;background:{{ s.bg }};border:1px solid {{ s.bd }};padding:12px 14px;display:flex;flex-direction:column">
+                <span style="font-size:11.2px;line-height:16.8px;letter-spacing:.672px;color:{{ s.lc }};text-transform:uppercase">{{ s.label }}</span>
+                <span style="padding:4px 0;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;line-height:36px;color:{{ s.vc }}">{{ s.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+            <sc-for list="{{ statsB }}" as="s" hint-placeholder-count="4">
+              <div style="border-radius:10px;background:{{ s.bg }};border:1px solid {{ s.bd }};padding:12px 14px;display:flex;flex-direction:column">
+                <span style="font-size:11.2px;line-height:16.8px;letter-spacing:.672px;color:{{ s.lc }};text-transform:uppercase">{{ s.label }}</span>
+                <span style="padding:4px 0;display:flex;align-items:baseline;gap:4px"><span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;line-height:36px;color:{{ s.vc }}">{{ s.value }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.52px;color:{{ s.lc }}">{{ s.unit }}</span></span>
+                <span style="font-size:10.88px;color:{{ s.lc }}">{{ s.note }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+            <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+              <span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Temperature trends — live</span>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ legend }}" as="l" hint-placeholder-count="3">
+                  <button onClick="{{ l.toggle }}" style="border:1px solid {{ l.bd }};background:{{ l.bg }};color:{{ l.color }};border-radius:5px;padding:3px 10px;font-weight:500;font-size:11.2px;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="width:8px;height:2px;background:{{ l.color }}"></span>{{ l.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="position:relative;height:260px;padding:14px 20px 30px 56px">
+              <div style="position:relative;width:100%;height:100%;border-left:1px solid rgb(148,163,184);border-bottom:1px solid rgb(148,163,184)">
+                <sc-for list="{{ yTicks }}" as="yt" hint-placeholder-count="5">
+                  <div style="position:absolute;left:0;right:0;top:{{ yt.top }};border-top:1px dashed {{ yt.grid }}"></div>
+                  <span style="position:absolute;right:calc(100% + 8px);top:{{ yt.top }};transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;color:rgb(100,116,139);white-space:nowrap">{{ yt.label }}</span>
+                </sc-for>
+                <sc-for list="{{ xTicks }}" as="xt" hint-placeholder-count="6">
+                  <div style="position:absolute;top:0;bottom:0;left:{{ xt.left }};border-left:1px dashed rgb(241,245,249)"></div>
+                  <span style="position:absolute;top:calc(100% + 6px);left:{{ xt.left }};transform:{{ xt.tf }};font-family:'JetBrains Mono',monospace;font-size:10px;color:rgb(100,116,139);white-space:nowrap">{{ xt.label }}</span>
+                </sc-for>
+                <sc-if value="{{ showMax }}">
+                  <div style="position:absolute;left:0;right:0;top:{{ maxTop }};border-top:1px dashed rgb(239,68,68)"></div>
+                  <span style="position:absolute;left:50%;top:{{ maxTop }};transform:translateY(-120%);font-size:9px;color:rgb(220,38,38)">max 42°C</span>
+                </sc-if>
+                <svg viewBox="0 0 1000 240" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible">
+                  <sc-if value="{{ showAmb }}"><path d="{{ ambPath }}" fill="none" stroke="rgb(245,158,11)" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></sc-if>
+                  <sc-if value="{{ showCond }}"><path d="{{ condPath }}" fill="none" stroke="rgb(220,38,38)" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></sc-if>
+                  <sc-if value="{{ showWater }}"><path d="{{ waterPath }}" fill="none" stroke="rgb(37,99,235)" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></sc-if>
+                </svg>
+                <sc-if value="{{ hovering }}">
+                  <div style="position:absolute;top:0;bottom:0;left:{{ hoverLeft }};border-left:1px solid rgb(203,213,225);pointer-events:none"></div>
+                  <sc-for list="{{ hoverDots }}" as="hd">
+                    <div style="position:absolute;left:{{ hoverLeft }};top:{{ hd.top }};width:8px;height:8px;border-radius:4px;background:{{ hd.color }};border:1.5px solid #fff;transform:translate(-50%,-50%);pointer-events:none"></div>
+                  </sc-for>
+                  <div style="position:absolute;top:8px;left:{{ hoverLeft }};transform:{{ tipTf }};background:#fff;border:1px solid rgb(226,232,240);border-radius:8px;box-shadow:0 4px 14px rgba(30,41,59,.08);padding:10px 14px;display:flex;flex-direction:column;gap:6px;pointer-events:none;white-space:nowrap;z-index:2">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ hoverTime }}</span>
+                    <sc-for list="{{ hoverRows }}" as="hr">
+                      <span style="display:flex;align-items:center;gap:6px;font-size:12.48px;color:rgb(100,116,139)"><span style="width:8px;height:8px;border-radius:4px;background:{{ hr.color }}"></span><span>{{ hr.label }}</span><span style="font-family:'JetBrains Mono',monospace;font-weight:500;color:rgb(30,41,59)">{{ hr.value }}</span></span>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <div onMouseMove="{{ onChartMove }}" onMouseLeave="{{ onChartLeave }}" style="position:absolute;inset:0;cursor:crosshair"></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+            <sc-for list="{{ tables }}" as="tb" hint-placeholder-count="2">
+              <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+                <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">{{ tb.title }}</span></div>
+                <div style="padding:4px 14px 10px">
+                  <sc-for list="{{ tb.rows }}" as="row" hint-placeholder-count="8">
+                    <div style="border-bottom:1px solid rgb(226,232,240);display:flex;padding:7px 0;justify-content:space-between;align-items:center;gap:12px">
+                      <span style="font-size:13.12px;line-height:19.68px;color:rgb(100,116,139)">{{ row.label }}</span>
+                      <span style="display:flex;align-items:baseline;gap:3px"><span style="font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13.12px;color:{{ row.color }}">{{ row.value }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.2px;color:rgb(100,116,139)">{{ row.unit }}</span></span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabDiag }}">
+          <div style="border-radius:10px;border:1px solid {{ recColor }};background:{{ recBg }};padding:16px 18px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+            <i class="ph-fill {{ recIcon }}" style="font-size:26px;color:{{ recColor }}"></i>
+            <div style="flex:1 1 300px;display:flex;flex-direction:column;gap:4px">
+              <span style="font-weight:700;font-size:16px;color:{{ recColor }}">{{ recLabel }}</span>
+              <span style="font-size:13.12px;line-height:19.68px;color:rgb(30,41,59)">{{ recWhy }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+              <span style="font-size:10.88px;color:rgb(100,116,139);text-transform:uppercase;letter-spacing:.6px">Priority</span>
+              <span style="font-weight:600;font-size:13.12px">{{ priority }}</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+                <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px;display:flex;justify-content:space-between"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Likely cause</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ confLabel }}</span></div>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+                  <span style="font-weight:600;font-size:14.4px">{{ cause }}</span>
+                  <div style="height:4px;background:rgb(241,245,249);border-radius:2px;overflow:hidden"><div style="height:100%;width:{{ confPct }};background:{{ recColor }}"></div></div>
+                  <span style="font-size:11.2px;letter-spacing:.672px;color:rgb(100,116,139);text-transform:uppercase;margin-top:4px">Evidence from telemetry</span>
+                  <sc-for list="{{ evidence }}" as="e" hint-placeholder-count="3">
+                    <div style="display:flex;gap:10px;align-items:baseline;font-size:13.12px;line-height:19.68px"><span style="width:6px;height:6px;border-radius:3px;background:{{ e.dot }};flex-shrink:0;transform:translateY(-2px)"></span><span>{{ e.text }}</span></div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+                <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px;display:flex;justify-content:space-between"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Ask the caller first</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ checkDone }}</span></div>
+                <div style="padding:6px 14px 10px">
+                  <sc-for list="{{ checks }}" as="c" hint-placeholder-count="3">
+                    <button onClick="{{ c.toggle }}" style="width:100%;border:none;border-bottom:1px solid rgb(226,232,240);background:none;display:flex;gap:10px;align-items:flex-start;padding:9px 0;text-align:left;cursor:pointer;font-size:13.12px;line-height:19.68px;color:{{ c.color }}">
+                      <i class="{{ c.icon }}" style="font-size:18px;color:{{ c.iconColor }};flex-shrink:0"></i><span style="text-decoration:{{ c.strike }}">{{ c.text }}</span>
+                    </button>
+                  </sc-for>
+                  <span style="display:block;padding-top:10px;font-size:11.2px;color:rgb(100,116,139)">{{ checkHint }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+                <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px;display:flex;justify-content:space-between;gap:10px"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Technician</span><span style="font-size:11.52px;color:rgb(100,116,139)">{{ skillLabel }}</span></div>
+                <div style="padding:6px 14px 10px">
+                  <sc-if value="{{ noTech }}"><div style="padding:14px 0;font-size:13.12px;color:rgb(100,116,139)">{{ noTechText }}</div></sc-if>
+                  <sc-for list="{{ techs }}" as="t" hint-placeholder-count="3">
+                    <div style="border-bottom:1px solid rgb(226,232,240);display:flex;gap:12px;align-items:center;padding:10px 0">
+                      <div style="width:34px;height:34px;border-radius:17px;background:rgb(238,246,255);color:rgb(37,99,235);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12.48px;flex-shrink:0">{{ t.initials }}</div>
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                        <span style="display:flex;gap:8px;align-items:center;font-weight:600;font-size:13.12px">{{ t.name }}<sc-if value="{{ t.best }}"><span style="background:rgb(220,252,231);color:rgb(21,128,61);font-size:9.36px;font-weight:700;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px">Best match</span></sc-if></span>
+                        <span style="font-size:11.2px;color:rgb(100,116,139)">{{ t.meta }}</span>
+                        <span style="font-size:11.2px;color:{{ t.availColor }}">{{ t.avail }}</span>
+                      </div>
+                      <button onClick="{{ t.assign }}" style="border:none;border-radius:5px;background:{{ t.btnBg }};color:{{ t.btnColor }};box-shadow:inset 0 0 0 1px {{ t.btnBd }};font-weight:600;font-size:11.52px;padding:6px 14px;cursor:pointer;white-space:nowrap;display:flex;gap:5px;align-items:center">{{ t.btnLabel }}</button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ hasAssigned }}"><div style="margin-top:10px;border-radius:7px;background:rgb(220,252,231);color:rgb(21,128,61);padding:8px 12px;font-size:12.48px;display:flex;gap:8px;align-items:center"><i class="ph-fill ph-check-circle" style="font-size:16px"></i>{{ assignedText }}</div></sc-if>
+                </div>
+              </div>
+              <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+                <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Spare parts to bring</span></div>
+                <div style="padding:6px 14px 10px">
+                  <sc-if value="{{ noParts }}"><div style="padding:14px 0;font-size:13.12px;color:rgb(100,116,139)">No parts needed.</div></sc-if>
+                  <sc-for list="{{ parts }}" as="p" hint-placeholder-count="3">
+                    <div style="border-bottom:1px solid rgb(226,232,240);display:flex;gap:10px;padding:8px 0;align-items:center;justify-content:space-between">
+                      <div style="display:flex;flex-direction:column"><span style="font-size:13.12px">{{ p.name }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgb(100,116,139)">{{ p.code }}</span></div>
+                      <span style="background:{{ p.bg }};color:{{ p.color }};font-size:10.88px;font-weight:600;padding:2px 8px;border-radius:4px;white-space:nowrap">{{ p.stock }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+                <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Tools</span></div>
+                <div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-if value="{{ noTools }}"><span style="font-size:13.12px;color:rgb(100,116,139)">No tools needed.</span></sc-if>
+                  <sc-for list="{{ tools }}" as="tl" hint-placeholder-count="3"><span style="border:1px solid rgb(226,232,240);border-radius:6px;padding:4px 10px;font-size:12.48px;display:flex;gap:6px;align-items:center"><i class="ph ph-wrench" style="color:rgb(100,116,139)"></i>{{ tl }}</span></sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabFlow }}">
+          <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+            <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase"><span>Valve</span><span>Flow rate</span><span>Brix ratio</span><span>Pours today</span><span style="text-align:right">Status</span></div>
+            <div style="padding:4px 14px 10px">
+              <sc-for list="{{ valves }}" as="v" hint-placeholder-count="4">
+                <div style="border-bottom:1px solid rgb(226,232,240);display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;padding:9px 0;align-items:center;font-size:13.12px">
+                  <span style="display:flex;gap:10px;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ v.no }}</span>{{ v.name }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;color:{{ v.color }}">{{ v.flow }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace">{{ v.ratio }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace">{{ v.pours }}</span>
+                  <span style="text-align:right;font-weight:700;font-size:11.2px;color:{{ v.color }}">{{ v.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tabLog }}">
+          <div style="border-radius:10px;background:#fff;border:1px solid rgb(226,232,240);overflow:hidden">
+            <div style="background:rgb(248,250,252);border-bottom:1px solid rgb(226,232,240);padding:9px 14px"><span style="font-weight:600;font-size:11.52px;letter-spacing:.806px;color:rgb(100,116,139);text-transform:uppercase">Last 48 hours</span></div>
+            <div style="padding:4px 14px 10px">
+              <sc-for list="{{ events }}" as="ev" hint-placeholder-count="6">
+                <div style="border-bottom:1px solid rgb(226,232,240);display:flex;gap:14px;padding:9px 0;align-items:baseline;font-size:13.12px">
+                  <span style="width:110px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11.52px;color:rgb(100,116,139)">{{ ev.time }}</span>
+                  <span style="width:64px;flex-shrink:0;font-weight:700;font-size:11.2px;color:{{ ev.color }}">{{ ev.level }}</span>
+                  <span style="flex:1">{{ ev.text }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgb(100,116,139)">{{ ev.code }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position:fixed;left:0;right:0;bottom:0;height:30px;background:#fff;border:1px solid rgb(226,232,240);display:flex;padding:6px 24px;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10.88px">
+    <span style="color:rgb(22,163,74)">● DECODED · Software No: 4-1138-2291</span>
+    <span style="color:rgb(100,116,139)">Last sync: {{ syncTime }}</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const C={ink:'rgb(30,41,59)',mut:'rgb(100,116,139)',bd:'rgb(226,232,240)',blue:'rgb(37,99,235)',green:'rgb(22,163,74)',red:'rgb(220,38,38)',amber:'rgb(245,158,11)',amberT:'rgb(180,83,9)'};
+const ST={Healthy:{dot:C.green,txt:C.green,bg:'rgb(220,252,231)',rank:2},Warning:{dot:C.amber,txt:C.amberT,bg:'rgb(254,243,199)',rank:1},Critical:{dot:C.red,txt:C.red,bg:'rgb(254,226,226)',rank:0}};
+const UNITS=[
+ ['CU-1042','SN-00412',"McDonald's Oxford St — London","McDonald's UK",'ok','London'],
+ ['CU-1043','SN-00413',"Pizza Hut Leicester Sq — London",'Pizza Hut UK','ok','London'],
+ ['CU-1107','SN-00414',"Burger King Piccadilly — Manchester",'Burger King UK','ok','Manchester'],
+ ['CU-1188','SN-00415',"Nando's Covent Garden — London","Nando’s UK",'ok','London'],
+ ['CU-1203','SN-00416',"McDonald's Queen St — Cardiff","McDonald's UK",'ok','Cardiff'],
+ ['CU-1219','SN-00417',"McDonald's Princes St — Edinburgh","McDonald's UK",'ok','Edinburgh'],
+ ['CU-1276','SN-00418',"McDonald's Broad St — Bristol","McDonald's UK",'ok','Bristol'],
+ ['CU-2187','SN-00819',"Burger King Briggate — Leeds",'Burger King UK','co2','Leeds'],
+ ['CU-3304','SN-01234',"KFC Birmingham New St — Birmingham",'KFC UK','ice','Birmingham'],
+ ['CU-4051','SN-01567',"Subway Rue de Rivoli — Paris",'Subway Europe','ok','Paris'],
+ ['CU-5219','SN-02001',"Pizza Hut Bold St — Liverpool",'Pizza Hut UK','filter','Liverpool'],
+ ['CU-6033','SN-02345',"Nando's Brick Lane — London","Nando's UK",'ok','London'],
+ ['CU-7118','SN-02789',"Costa Coffee Victoria Station — London",'Costa Coffee','water','London'],
+ ['CU-8204','SN-03012',"Five Guys Kurfürstendamm — Berlin",'Five Guys Europe','pump','Berlin'],
+].map((a,i)=>({id:a[0],sn:a[1],loc:a[2],client:a[3],sc:a[4],city:a[5],i}));
+const STATUS={ok:'Healthy',co2:'Warning',filter:'Warning',water:'Warning',ice:'Critical',pump:'Critical'};
+const OVR={
+ co2:{co2:2.1,co2Low:6,carbLevel:3.9,soda:4.4},
+ filter:{filter:38,stillFlow:1.6,stillP:2.4},
+ water:{wpLow:9,stillP:0.8,stillFlow:0.9,carbTimeouts:2},
+ ice:{cond:39.4,water:2.9,soda:5.0,pump:1391,runTime:4218,wpLow:3,co2Low:1,compRun:3892,compCycles:18443,carbRun:22810,carbTimeouts:0,co2:4.624,carbLevel:6.2,carbCycles:22810,stillFlow:2.8,stillP:3.2,filter:612,amb:24.1},
+ pump:{pump:0,carbTimeouts:14,triac:2,mains:1,carbLevel:1.2,soda:7.9,water:1.1},
+};
+const R='Refrigeration (F-Gas)',B='Beverage systems';
+const DIAG={
+ ok:{rec:'No dispatch needed',tone:'ok',why:'All telemetry is inside the normal range. The fault is probably at the counter. Go through the caller checks below.',prio:'None',cause:'No fault found in telemetry',conf:0,ev:[['All 23 parameters inside normal range','ok'],['No alarm events in the last 48 hours','ok']],checks:['Is the unit plugged in and the display on?','Is the CO₂ cylinder valve open?','Is the dispense nozzle clean and not blocked?'],skill:null,tools:[],parts:[]},
+ co2:{rec:'Guide caller — change CO₂ cylinder',tone:'warn',why:'CO₂ pressure is low. Staff can usually fix this by changing the cylinder. Send a technician only if pressure stays low after the change.',prio:'Only if call fix fails',cause:'CO₂ supply running out',conf:92,ev:[['CO₂ pressure 2.1 bar (minimum 3.5)','bad'],['6 CO₂ low events in 24 hours','bad'],['Carbonation 3.9 g/L — drinks taste flat','warn'],['Refrigeration normal: waterbath 0.9 °C','ok']],checks:['Is the CO₂ cylinder empty? Ask staff to change it.','After the change, is the regulator gauge above 3.5 bar?','Ask staff to pour one drink. Is it fizzy now?'],skill:B,tools:['Leak detection spray','Adjustable spanner'],parts:[['CO₂ regulator','MM-RG-220']]},
+ filter:{rec:'Schedule maintenance visit',tone:'warn',why:'The water filter is almost used up. Flow is lower but the unit still works. Book a planned visit, not an emergency.',prio:'Planned — within 3 days',cause:'Water filter near end of life',conf:88,ev:[['Filter hours left: 38 h','warn'],['Still flow 1.6 L/min (normal 2.5–3.2)','warn'],['Still pressure 2.4 bar','warn']],checks:['Is the still water slower than usual?','Is the water cloudy or does it taste different?'],skill:B,tools:['Filter head wrench','Flush bucket'],parts:[['Water filter cartridge','MM-WF-900']]},
+ water:{rec:'Guide caller — check water supply',tone:'warn',why:'Incoming water pressure is very low. This is often a closed tap or a building supply problem, not the cooler.',prio:'Only if call fix fails',cause:'Low incoming water pressure',conf:81,ev:[['9 water pressure low events in 24 hours','bad'],['Still pressure 0.8 bar (minimum 2.0)','bad'],['2 carbonator pump timeouts','warn']],checks:['Is the water inlet tap under the counter fully open?','Do other taps in the kitchen have normal pressure?','Is the water hose behind the unit bent or crushed?'],skill:B,tools:['Pressure gauge','Adjustable spanner'],parts:[['Inlet solenoid valve','MM-SV-114'],['Pressure reducing valve','MM-PR-300']]},
+ ice:{rec:'Dispatch technician',tone:'crit',why:'The ice bank is not building. Waterbath temperature is rising. Drinks will be warm within about 2 hours. This cannot be fixed by phone.',prio:'Same day',cause:'Ice bank not building — refrigeration fault',conf:86,ev:[['Waterbath 2.9 °C and rising (normal ≤ 1.5)','bad'],['Compressor 3,892 h — high duty cycle','warn'],['Condenser 39.4 °C, close to 42 °C maximum','warn'],['Pump and CO₂ supply normal','ok']],checks:['Is there 10 cm free space around the air vents?','Ask staff to clean dust from the front grille.'],skill:R,tools:['Refrigerant gauge manifold','Electronic leak detector','Clamp meter','Temperature probe'],parts:[['Condenser fan motor 230 V','MM-FM-041'],['Agitator motor','MM-AG-017'],['Ice bank probe','MM-IP-203'],['R290 refrigerant 150 g','MM-RF-290']]},
+ pump:{rec:'Dispatch technician',tone:'crit',why:'The carbonator pump has stopped. No carbonated drinks can be poured. Staff cannot fix this.',prio:'Same day',cause:'Carbonator pump failure',conf:94,ev:[['Pump speed 0 rpm (normal 1,300–1,450)','bad'],['14 carbonator pump timeouts','bad'],['2 triac defects on pump board','bad'],['Refrigeration normal: waterbath 1.1 °C','ok']],checks:['Is the pump making a humming sound but no water moves?'],skill:B,tools:['Multimeter','Pump pressure gauge','Torx set T10–T30'],parts:[['Carbonator pump motor','MM-PM-550'],['Pump triac board','MM-TB-012'],['Pump O-ring kit','MM-OK-008']]},
+};
+const TECHS=[
+ {name:'Tom Hayes',skills:[R,B],cover:{Birmingham:6},free:true,van:['MM-FM-041','MM-IP-203','MM-RF-290','MM-RG-220']},
+ {name:'Priya Shah',skills:[B],cover:{Birmingham:4},free:false,at:'15:30',van:['MM-PM-550']},
+ {name:'Mark Ellis',skills:[R],cover:{Birmingham:31},free:true,van:['MM-AG-017','MM-FM-041']},
+ {name:'Sophie Grant',skills:[R,B],cover:{London:5},free:true,van:['MM-SV-114','MM-RG-220']},
+ {name:'Dan Okoro',skills:[B],cover:{London:9},free:false,at:'16:00',van:['MM-PR-300','MM-SV-114']},
+ {name:'Liam Walsh',skills:[B],cover:{Leeds:7,Liverpool:118},free:true,van:['MM-RG-220','MM-WF-900']},
+ {name:'Ella Moore',skills:[B,R],cover:{Liverpool:5},free:true,van:['MM-WF-900']},
+ {name:'Rachel Hunt',skills:[R],cover:{Leeds:62,Liverpool:56},free:true,van:[]},
+ {name:'Jonas Weber',skills:[B],cover:{Berlin:8},free:true,van:['MM-PM-550','MM-OK-008']},
+ {name:'Katrin Vogel',skills:[R,B],cover:{Berlin:14},free:false,at:'14:45',van:['MM-TB-012','MM-PM-550','MM-OK-008']},
+];
+function telemetry(u){
+ const k=u.i;
+ const b={mains:0,watchdog:0,triac:0,under:0,over:0,cond:35.8+(k%4)*0.7,water:0.7+(k%3)*0.15,soda:3.6+(k%5)*0.2,pump:1380+(k*13)%60,amb:21.5+(k%4)*0.6,runTime:2400+k*211,wpLow:0,co2Low:0,compRun:2100+k*180,compCycles:11000+k*713,carbRun:15000+k*640,carbTimeouts:0,co2:4.5+(k%3)*0.06,carbLevel:6.6+(k%3)*0.1,carbCycles:15000+k*640,stillFlow:2.8+(k%3)*0.1,stillP:3.1+(k%2)*0.1,filter:900+k*97};
+ return Object.assign(b,OVR[u.sc]||{});
+}
+const pad=n=>String(n).padStart(2,'0');
+const hms=d=>pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+const N=90;
+const rnd=(a)=>(Math.random()-0.5)*a;
+const walk=(prev,target,a)=>prev+(target-prev)*0.08+rnd(a*0.25);
+function makeSeries(t,sc){
+ const c=[],w=[],a=[];
+ for(let i=0;i<N;i++){
+  c.push(walk(i?c[i-1]:t.cond,t.cond,0.8));
+  a.push(walk(i?a[i-1]:t.amb,t.amb,0.4));
+  const wt=sc==='ice'?t.water-1.3+1.3*(i/(N-1)):t.water;
+  w.push(walk(i?w[i-1]:wt,wt,sc==='ice'?0.08:0.15));
+ }
+ return {c,w,a,t0:Date.now()-(N-1)*2000};
+}
+const path=arr=>arr.map((v,i)=>(i?'L':'M')+(i/(N-1)*1000).toFixed(1)+' '+(240-Math.max(0,Math.min(44,v))/44*240).toFixed(1)).join(' ');
+const fmt=(n,d=0)=>Number(n).toLocaleString('en-GB',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+class Component extends DCLogic {
+  state={screen:'search',q:'',sel:null,tab:'overview',sortBy:'severity',filter:'All',series:null,now:new Date(),lastSync:new Date(),refreshing:false,checks:{},assigned:{},hide:{}};
+  inputRef=React.createRef();
+  componentDidMount(){
+    this.timer=setInterval(()=>this.tick(),2000);
+    setTimeout(()=>this.inputRef.current&&this.inputRef.current.focus(),50);
+  }
+  componentWillUnmount(){clearInterval(this.timer);}
+  tick(){
+    const s=this.state; const now=new Date();
+    if(s.screen==='detail'&&s.series){
+      const u=UNITS[s.sel],t=telemetry(u),sr=s.series;
+      const lw=sr.w[N-1];
+      const nw=u.sc==='ice'?lw+0.006+rnd(0.015):walk(lw,t.water,0.15);
+      this.setState({now,lastSync:now,series:{c:[...sr.c.slice(1),walk(sr.c[N-1],t.cond,0.8)],w:[...sr.w.slice(1),nw],a:[...sr.a.slice(1),walk(sr.a[N-1],t.amb,0.4)],t0:sr.t0+2000}});
+    } else this.setState({now});
+  }
+  open(i){
+    const u=UNITS[i];
+    this.setState({screen:'detail',sel:i,tab:'overview',series:makeSeries(telemetry(u),u.sc),lastSync:new Date()});
+    window.scrollTo(0,0);
+  }
+  goSearch=()=>{this.setState({screen:'search'});setTimeout(()=>this.inputRef.current&&this.inputRef.current.focus(),50);};
+  results(){
+    const {q,sortBy,filter}=this.state;
+    const qq=q.trim().toLowerCase().replace(/[\s-]/g,'');
+    let list=UNITS.filter(u=>!qq||u.id.toLowerCase().replace('-','').includes(qq)||u.sn.toLowerCase().replace('-','').includes(qq));
+    if(filter!=='All')list=list.filter(u=>STATUS[u.sc]===filter);
+    if(sortBy==='severity')list=[...list].sort((a,b)=>ST[STATUS[a.sc]].rank-ST[STATUS[b.sc]].rank||a.id.localeCompare(b.id));
+    return list;
+  }
+  renderVals(){
+    const s=this.state;
+    const list=this.results();
+    const qt=s.q.trim();
+    const v={
+      isSearch:s.screen==='search',isDetail:s.screen==='detail',
+      q:s.q,hasQ:!!s.q,inputRef:this.inputRef,
+      onQ:e=>this.setState({q:e.target.value}),
+      clearQ:e=>{e.preventDefault();this.setState({q:''});this.inputRef.current&&this.inputRef.current.focus();},
+      onKey:e=>{if(e.key==='Enter'&&list.length)this.open(list[0].i);if(e.key==='Escape')this.setState({q:''});},
+      sortLabel:s.sortBy==='severity'?'Sort: severity':'Sort: ID',
+      toggleSort:()=>this.setState({sortBy:s.sortBy==='severity'?'id':'severity'}),
+      filterLabel:s.filter==='All'?'Filter':'Filter: '+s.filter,
+      filterColor:s.filter==='All'?C.mut:C.blue,
+      cycleFilter:()=>{const o=['All','Critical','Warning','Healthy'];this.setState({filter:o[(o.indexOf(s.filter)+1)%4]});},
+      listTitle:qt?`${list.length} result${list.length===1?'':'s'} for ‘${qt}’`:(s.filter==='All'?'All cooler units — click to view':s.filter+' cooler units — click to view'),
+      noResults:list.length===0,
+      results:list.map(u=>{const st=STATUS[u.sc];return {id:u.id,sn:u.sn,loc:u.loc,client:u.client,status:st,dot:ST[st].dot,txt:ST[st].txt,open:()=>this.open(u.i)};}),
+      goSearch:this.goSearch,
+      goSearchLink:e=>{e.preventDefault();this.goSearch();},
+      syncTime:hms(s.lastSync),
+    };
+    if(s.screen!=='detail')return v;
+    const u=UNITS[s.sel],t=telemetry(u),st=STATUS[u.sc],d=DIAG[u.sc],sr=s.series;
+    const cur={cond:sr.c[N-1],water:sr.w[N-1],amb:sr.a[N-1]};
+    const toneC={ok:C.green,warn:C.amberT,crit:C.red}[d.tone];
+    const toneBg={ok:'rgb(240,253,244)',warn:'rgb(255,251,235)',crit:'rgb(254,242,242)'}[d.tone];
+    const ago=Math.max(0,Math.round((s.now-s.lastSync)/1000));
+    Object.assign(v,{
+      uId:u.id,uSn:u.sn,uLoc:u.loc,uClient:u.client,uStatus:st,stDot:ST[st].dot,stBg:ST[st].bg,stTxt:ST[st].txt,
+      syncAgo:ago<3?'live':ago+' s ago',
+      refreshLabel:s.refreshing?'Refreshing…':'Refresh',
+      refresh:()=>{this.setState({refreshing:true});setTimeout(()=>{this.setState({refreshing:false});this.tick();},700);},
+      recLabel:d.rec,recColor:toneC,recBg:toneBg,recWhy:d.why,priority:d.prio,
+      recIcon:{ok:'ph-check-circle',warn:'ph-phone-call',crit:'ph-warning'}[d.tone],
+      goDiag:()=>this.setState({tab:'diag'}),
+      tabOverview:s.tab==='overview',tabDiag:s.tab==='diag',tabFlow:s.tab==='flow',tabLog:s.tab==='log',
+    });
+    const alerts=d.ev.filter(e=>e[1]!=='ok').length;
+    v.tabs=[['overview','Overview'],['diag','Diagnostics'],['flow','Flow Modules'],['log','Event Log']].map(([k,l])=>{const a=s.tab===k;return {label:l,go:()=>this.setState({tab:k}),bd:a?C.blue:'transparent',bg:a?'#fff':'transparent',color:a?C.blue:C.mut,hasCount:k==='diag'&&alerts>0,count:alerts,countBg:toneC};});
+    const card=(label,value,bad,zeroGood,unit,note)=>({label,value,unit:unit||'',note:note||'',bg:bad?'rgb(254,242,242)':'#fff',bd:bad?C.red:C.bd,lc:bad?C.red:C.mut,vc:bad?C.red:(zeroGood?C.green:C.ink)});
+    const cnt=(l,n)=>card(l,String(n),n>0,n===0);
+    v.statsA=[cnt('Mains resets',t.mains),cnt('Watchdog resets',t.watchdog),cnt('Triac defects',t.triac),cnt('Undervoltage',t.under),cnt('Overvoltage',t.over)];
+    const pump=t.pump?Math.round(t.pump+rnd(8)):0;
+    v.statsB=[card('Condenser temp',fmt(cur.cond,1),cur.cond>42,false,'°C','Max 42 °C'),card('Waterbath temp',fmt(cur.water,1),cur.water>1.5,false,'°C','Normal ≤ 1.5 °C'),card('Soda return temp',fmt(t.soda,1),t.soda>6,false,'°C','Normal ≤ 6 °C'),card('Pump speed',String(pump),pump<1000,false,'rpm','Normal 1,300–1,450')];
+    const series=[['c','Condenser',C.red],['w','Waterbath',C.blue],['a','Ambient',C.amber]];
+    v.legend=series.map(([k,l,col])=>{const off=s.hide[k];return {label:l,color:off?C.mut:col,bd:off?C.bd:col,bg:off?'#fff':'rgba(255,255,255,.6)',toggle:()=>this.setState({hide:{...s.hide,[k]:!off}})};});
+    v.showCond=!s.hide.c;v.showWater=!s.hide.w;v.showAmb=!s.hide.a;
+    const vis=series.filter(([k])=>!s.hide[k]);
+    const chartVals=vis.flatMap(([k])=>sr[k]);
+    let lo=0,hi=44,step=11;
+    if(chartVals.length){
+      const mn=Math.min(...chartVals),mx=Math.max(...chartVals);
+      const nice=r=>{const p=Math.pow(10,Math.floor(Math.log10(r)));const f=r/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;};
+      if(vis.length===1){step=nice(Math.max(mx-mn,0.05)/4);lo=Math.floor(mn/step)*step;hi=Math.ceil(mx/step)*step;if(hi-lo<step*2)hi=lo+step*2;}
+      else{step=nice(mx/4);lo=0;hi=Math.ceil(mx/step)*step;if(hi<=mx)hi+=step;}
+    }
+    const yp=x=>240-(x-lo)/(hi-lo)*240;
+    const pct=x=>(yp(x)/240*100).toFixed(2)+'%';
+    const pth=arr=>arr.map((x,i)=>(i?'L':'M')+(i/(N-1)*1000).toFixed(1)+' '+yp(x).toFixed(1)).join(' ');
+    v.condPath=pth(sr.c);v.waterPath=pth(sr.w);v.ambPath=pth(sr.a);
+    const dec=step<0.1?3:step<1?2:0;
+    v.yTicks=[];for(let y=lo;y<=hi+step/1000;y+=step)v.yTicks.push({top:pct(y),label:fmt(y,dec).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,''),grid:y===lo?'transparent':'rgb(241,245,249)'});
+    v.showMax=!s.hide.c&&42>=lo&&42<=hi;v.maxTop=pct(42);
+    v.xTicks=[0,1,2,3,4,5].map(i=>{const idx=Math.round(i*(N-1)/5);return {left:(idx/(N-1)*100)+'%',label:hms(new Date(sr.t0+idx*2000)),tf:i===0?'translateX(0)':i===5?'translateX(-100%)':'translateX(-50%)'};});
+    v.onChartMove=e=>{const r=e.currentTarget.getBoundingClientRect();const i=Math.max(0,Math.min(N-1,Math.round((e.clientX-r.left)/r.width*(N-1))));if(i!==this.state.hoverI)this.setState({hoverI:i});};
+    v.onChartLeave=()=>this.setState({hoverI:null});
+    const hi_=s.hoverI;
+    v.hovering=hi_!=null&&vis.length>0;
+    if(v.hovering){
+      const f=hi_/(N-1);
+      v.hoverLeft=(f*100)+'%';
+      v.tipTf=f>0.7?'translateX(calc(-100% - 14px))':'translateX(14px)';
+      v.hoverTime=hms(new Date(sr.t0+hi_*2000));
+      const ord=[...vis].sort((a,b)=>sr[a[0]][hi_]-sr[b[0]][hi_]);
+      v.hoverRows=ord.map(([k,l,col])=>({label:l+':',color:col,value:fmt(sr[k][hi_],k==='w'?2:1)}));
+      v.hoverDots=vis.map(([k,l,col])=>({color:col,top:pct(sr[k][hi_])}));
+    }
+    const row=(label,value,unit,bad)=>({label,value,unit:unit||'',color:bad?C.red:C.ink});
+    v.tables=[
+      {title:'Unit information',rows:[row('Total run time',fmt(t.runTime),'h'),row('Water pressure low',String(t.wpLow),'',t.wpLow>0),row('CO₂ low events',String(t.co2Low),'',t.co2Low>0),row('Compressor run time',fmt(t.compRun),'h'),row('Compressor cycles',fmt(t.compCycles)),row('Carbonator run time',fmt(t.carbRun)),row('Carbonator pump timeouts',String(t.carbTimeouts),'',t.carbTimeouts>0),row('Pump speed measured',String(pump),'rpm',pump<1000)]},
+      {title:'Carbonation & still water',rows:[row('CO₂ pressure',fmt(t.co2,3),'bar',t.co2<3.5),row('Carbonation level',fmt(t.carbLevel,1),'g/L',t.carbLevel<5),row('Waterbath temp',fmt(cur.water,1),'°C',cur.water>1.5),row('Carb pump cycles',fmt(t.carbCycles)),row('Still flow rate',fmt(t.stillFlow,1),'L/min',t.stillFlow<2.5),row('Still pressure',fmt(t.stillP,1),'bar',t.stillP<2),row('Filter hours left',fmt(t.filter),'h',t.filter<100),row('Ambient temp',fmt(cur.amb,1),'°C')]},
+    ];
+    // Diagnostics
+    v.cause=d.cause;v.confLabel=d.conf?d.conf+'% confidence':'';v.confPct=(d.conf||100)+'%';
+    v.evidence=d.ev.map(([text,lv])=>({text,dot:lv==='bad'?C.red:lv==='warn'?C.amber:C.green}));
+    const ck=s.checks[u.id]||{};
+    v.checks=d.checks.map((text,i)=>{const on=!!ck[i];return {text,icon:on?'ph-fill ph-check-square':'ph ph-square',iconColor:on?C.green:C.mut,color:on?C.mut:C.ink,strike:on?'line-through':'none',toggle:()=>this.setState({checks:{...s.checks,[u.id]:{...ck,[i]:!on}}})};});
+    const nDone=d.checks.filter((_,i)=>ck[i]).length;
+    v.checkDone=nDone+' of '+d.checks.length;
+    v.checkHint=d.tone==='crit'?'These checks do not replace a visit. Send a technician.':(nDone===d.checks.length?'All checks done. If the problem is still there, assign a technician.':'Tap each check when the caller confirms it.');
+    v.skillLabel=d.skill?'Needs: '+d.skill:'';
+    const asg=s.assigned[u.id];
+    let techs=[];
+    if(d.skill){
+      techs=TECHS.filter(x=>x.cover[u.city]!=null&&x.skills.includes(d.skill)).map(x=>{const vanHas=d.parts.filter(p=>x.van.includes(p[1])).length;return {...x,km:x.cover[u.city],vanHas};})
+        .sort((a,b)=>(b.free-a.free)||(b.vanHas-a.vanHas)||(a.km-b.km)).slice(0,3);
+    }
+    v.noTech=techs.length===0;
+    v.noTechText=d.skill?'No matching technician covers '+u.city+'. Escalate to the regional team lead.':'No technician needed. Solve on the call.';
+    v.techs=techs.map((x,i)=>{const a=asg===x.name;const eta=Math.round(x.km*2.2+15);return {
+      name:x.name,initials:x.name.split(' ').map(p=>p[0]).join(''),best:i===0&&x.free,
+      meta:x.km+' km away · '+x.skills.join(', ')+' · '+x.vanHas+' of '+d.parts.length+' parts in van',
+      avail:x.free?'Available now · ETA about '+eta+' min':'On a job · free at '+x.at,availColor:x.free?C.green:C.amberT,
+      btnLabel:a?'Assigned':'Assign',btnBg:a?C.green:(i===0?C.blue:'#fff'),btnColor:a||i===0?'#fff':C.blue,btnBd:a?C.green:C.blue,
+      assign:()=>this.setState({assigned:{...s.assigned,[u.id]:a?null:x.name}})};});
+    const at=techs.find(x=>x.name===asg);
+    v.hasAssigned=!!at;
+    v.assignedText=at?`Job created for ${at.name}. ${at.free?'ETA about '+Math.round(at.km*2.2+15)+' min.':'Starts at '+at.at+'.'} Tell the caller.`:'';
+    const ref=at||techs[0];
+    v.parts=d.parts.map(([name,code])=>{const has=ref&&ref.van.includes(code);return {name,code,stock:has?'In '+ref.name.split(' ')[0]+'’s van':'Order from depot',bg:has?'rgb(220,252,231)':'rgb(254,243,199)',color:has?'rgb(21,128,61)':C.amberT};});
+    v.noParts=d.parts.length===0;v.tools=d.tools;v.noTools=d.tools.length===0;
+    // Flow modules
+    const vals=[['V1','Cola'],['V2','Diet cola'],['V3','Lemonade'],['V4','Still water']];
+    v.valves=vals.map(([no,name],i)=>{
+      const carb=i<3;let flow=2.6+i*0.1,status='OK',bad=false;
+      if(u.sc==='pump'&&carb){flow=0;status='No flow';bad=true;}
+      if(u.sc==='co2'&&carb){status='Flat';bad=true;}
+      if(u.sc==='water'){flow=0.9+i*0.05;status='Low flow';bad=true;}
+      if(u.sc==='filter'&&!carb){flow=1.6;status='Low flow';bad=true;}
+      if(u.sc==='ice'){status='Warm';bad=true;}
+      return {no,name,flow:fmt(flow,1)+' L/min',ratio:carb?'5.0 : 1':'—',pours:String(bad&&u.sc==='pump'?12:140+((u.i*37+i*53)%160)),status,color:bad?(ST[st].txt):C.green};
+    });
+    // Event log
+    const base=[['Info','Daily self-test passed','E000'],['Info','Telemetry sync','E001'],['Info','Night eco mode ended','E014'],['Info','Daily self-test passed','E000'],['Info','Door opened for cleaning','E020']];
+    const scEv={
+      co2:[['Warning','CO₂ pressure below 3.5 bar','W210'],['Warning','CO₂ low event','W211'],['Warning','CO₂ low event','W211']],
+      filter:[['Warning','Filter hours below 50','W305'],['Info','Still flow below 2.0 L/min','I306']],
+      water:[['Warning','Water pressure low','W110'],['Warning','Carbonator pump timeout','W402'],['Warning','Water pressure low','W110']],
+      ice:[['Critical','Waterbath above 2.5 °C','C501'],['Warning','Ice bank build time exceeded','W503'],['Warning','Water pressure low','W110'],['Warning','CO₂ low event','W211']],
+      pump:[['Critical','Carbonator pump stopped','C401'],['Critical','Triac defect on pump board','C404'],['Warning','Carbonator pump timeout','W402'],['Info','Mains reset','I002']],
+    }[u.sc]||[];
+    const all=[...scEv,...base];
+    const lvC={Critical:C.red,Warning:C.amberT,Info:C.mut};
+    v.events=all.map((e,i)=>{const dt=new Date(s.lastSync-(i*i*1800000+i*1300000+240000));return {time:pad(dt.getDate())+'/'+pad(dt.getMonth()+1)+' '+pad(dt.getHours())+':'+pad(dt.getMinutes()),level:e[0],text:e[1],code:e[2],color:lvC[e[0]]};});
+    return v;
+  }
+}
+</script>
+</body>
+</html>
